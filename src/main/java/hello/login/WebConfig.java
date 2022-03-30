@@ -2,15 +2,31 @@ package hello.login;
 
 import hello.login.web.filter.LogFilter;
 import hello.login.web.filter.LoginCheckFilter;
+import hello.login.web.interceptor.LogInterceptor;
+import lombok.extern.java.Log;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import javax.servlet.Filter;
 
 @Configuration
-public class WebConfig {
+public class WebConfig implements WebMvcConfigurer {
 
+    // 스프링 인터셉터 빈 등록
+    @Override
+    public void addInterceptors(InterceptorRegistry registry) {
+        registry.addInterceptor(new LogInterceptor()) // LogInterceptor 빈으로 등록
+                .order(1)   // 인터셉터 호출 순서
+                .addPathPatterns("/**")     // 인터셉터 적용할 url
+                .excludePathPatterns("/css/**", "/*.ico", "/error");   // 인터셉터 적용하지 않을 url
+    }
+
+    // -----------------------------------------------------------------------------
+
+    // 서블릿 Filter 빈 등록
     @Bean
     public FilterRegistrationBean logFilter() {
         FilterRegistrationBean<Filter> filterFilterRegistrationBean = new FilterRegistrationBean<>();
